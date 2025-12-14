@@ -16,27 +16,34 @@ public class ProductRepository {
         return products;
     }
 
-    public void removeById(int id) {
-        // 1. Считаем, сколько элементов останется (не совпадет с ID)
-        int count = 0;
+    /**
+     * Ищет товар по его ID.
+     *
+     * @param id ID искомого товара.
+     * @return Объект товара, если найден, иначе null.
+     */
+    public Product findById(int id) {
         for (Product product : products) {
-            if (product.getId() != id) {
-                count++;
+            if (product.getId() == id) {
+                return product;
             }
         }
+        return null; // Товар не найден
+    }
 
-        // Если количество элементов не изменилось, значит, элемент не найден.
-        // Выходим, чтобы избежать ошибки "array lengths differ" в тесте shouldNotChangeIfRemoveByIdNotExisting.
-        if (count == products.length) {
-            return;
+    public void removeById(int id) {
+        // Проверяем, существует ли элемент с таким ID
+        if (findById(id) == null) {
+            // Если элемент не найден, выбрасываем наше исключение
+            throw new NotFoundException("Element with id: " + id + " not found");
         }
 
-        // 2. Создаем новый массив правильного размера
-        Product[] tmp = new Product[count];
+        // Если элемент найден, приступаем к удалению
+        Product[] tmp = new Product[products.length - 1];
         int index = 0;
 
-        // 3. Копируем только нужные элементы
         for (Product product : products) {
+            // Копируем только те элементы, ID которых не совпадает с искомым
             if (product.getId() != id) {
                 tmp[index] = product;
                 index++;
